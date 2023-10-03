@@ -1,22 +1,30 @@
 grammar impl;
 
-// taking only part of last week's impl:
+start   : (SINGLELINE|MULTILINECOMMENT|WHITESPACE|hardware|input|output|latches|NORMALTEXT|simulate|updates)* EOF ;
 
-start   : e=exp EOF  ;
+SINGLELINE : '//' ~[\n]* [\n]* -> skip;
 
-exp : x=IDENTIFIER	          # Var
-    | f=FLOAT			  # Const
-    | e1=exp op=('*'|'/') e2=exp  # Mult
-    | e1=exp op=('+'|'-') e2=exp  # Add
-    | '(' e=exp ')'   	  	  # Paren
-    ;
-    
-IDENTIFIER : [a-zA-Z] [a-zA-Z_0-9]* ;  // x17y
-
-// Just using FLOAT this time, including integer values (the '.' is optional)
-FLOAT      : [0-9]+ ('.' [0-9]+)? ;
+MULTILINECOMMENT : '/*' (~[*] | '*' ~[/])* '*/' [\n]* -> skip;
 
 WHITESPACE : [ \t\n]+ -> skip;
 
-COMMENT : '//' ~[\n]* -> skip;
-LONGCOMMENT : '/*' (~[*] | '*'~[/])* '*/' -> skip;
+
+hardware: '.hardware ' NORMALTEXT;
+input:  '.inputs ' list;
+output:  '.outputs ' list;
+latches: '.latches' latch+;
+simulate: '.simulate' simulation+;
+updates: '.update' update+;
+
+list: ((NORMALTEXT ' ') | NORMALTEXT)+;
+latch: ' '* NORMALTEXT ' -> ' NORMALTEXT;
+simulation: ' '* NORMALTEXT '=' INT;
+update: ' '* NORMALTEXT ' '* '=' ' '* expression;
+
+expression: '!'? NORMALTEXT
+            | ' '* '('expression')' ' '*
+            | expression ' '* '&&' ' '* expression
+            | expression ' '* '||' ' '* expression;
+
+INT: [0-9]+;
+NORMALTEXT: [a-zA-Z_0-9]+;
