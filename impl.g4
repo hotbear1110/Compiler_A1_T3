@@ -1,6 +1,6 @@
 grammar impl;
 
-start   : (SINGLELINE|MULTILINECOMMENT|WHITESPACE|hardware|input|output|latches|NORMALTEXT|simulate|updates)* EOF ;
+start   : m=methods | (SINGLELINE|MULTILINECOMMENT|WHITESPACE|NORMALTEXT)* EOF ;
 
 SINGLELINE : '//' ~[\n]* [\n]* -> skip;
 
@@ -8,23 +8,34 @@ MULTILINECOMMENT : '/*' (~[*] | '*' ~[/])* '*/' [\n]* -> skip;
 
 WHITESPACE : [ \t\n]+ -> skip;
 
+methods:    hw=hardware
+       |    in=input
+       |    out=output
+       |    lat=latches
+       |    sim=simulate
+       |    upd=updates;
 
-hardware: '.hardware ' NORMALTEXT;
-input:  '.inputs ' list;
-output:  '.outputs ' list;
-latches: '.latches' latch+;
-simulate: '.simulate' simulation+;
-updates: '.update' update+;
 
-list: ((NORMALTEXT ' ') | NORMALTEXT)+;
-latch: ' '* NORMALTEXT ' -> ' NORMALTEXT;
-simulation: ' '* NORMALTEXT '=' INT;
-update: ' '* NORMALTEXT ' '* '=' ' '* expression;
+hardware: '.hardware ' v=NORMALTEXT;
+input:  '.inputs ' li=list;
+output:  '.outputs ' li=list;
+latches: '.latches' la=latch+;
+simulate: '.simulate' s=simulation+;
+updates: '.update' u=update+;
 
-expression: '!'? NORMALTEXT
-            | ' '* '('expression')' ' '*
-            | expression ' '* '&&' ' '* expression
-            | expression ' '* '||' ' '* expression;
+list: ((v=NORMALTEXT ' ') | v=NORMALTEXT)+;
+latch: ' '* v1=NORMALTEXT ' -> ' v2=NORMALTEXT;
+simulation: ' '* v=NORMALTEXT '=' i=INT;
+update: ' '* v=NORMALTEXT ' '* '=' ' '* e=expression;
+
+expression: '!'? x=NORMALTEXT                       # Var
+            | ' '* '('e=expression')' ' '*          # Paren
+            | e1=expression op=AND e2=expression    # AND
+            | e1=expression op=OR  e2=expression    # OR
+            ;
+
+AND: ' '* '&&' ' '*;
+OR: ' '* '||' ' '*;
 
 INT: [0-9]+;
 NORMALTEXT: [a-zA-Z_0-9]+;

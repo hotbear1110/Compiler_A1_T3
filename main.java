@@ -37,7 +37,7 @@ public class main {
 
 	// Construct an interpreter and run it on the parse tree
 	Interpreter interpreter = new Interpreter();
-	Double result=interpreter.visit(parseTree);
+	String result=interpreter.visit(parseTree);
 	System.out.println("The result is: "+result);
     }
 }
@@ -47,42 +47,94 @@ public class main {
 // This is parameterized over a return type "<T>" which is in our case
 // simply a Double.
 
-class Interpreter extends AbstractParseTreeVisitor<Double> implements implVisitor<Double> {
+class Interpreter extends AbstractParseTreeVisitor<String> implements implVisitor<String> {
     // todo - Java will complain that "Interpreter" does not in fact
     // implement "implVisitor" at the moment.
 
-    public Double visitStart(implParser.StartContext ctx){
+    public String visitStart(implParser.StartContext ctx){
 	System.out.println("Evaluating Start");
-	return visit(ctx.e);
+	return visit(ctx.m);
     }
-    public Double visitAdd(implParser.AddContext ctx){
-	Double d1=visit(ctx.e1);
-	Double d2=visit(ctx.e2);
-	System.out.println("Addition "+d1+ctx.op.getText()+d2);
-	if (ctx.op.getText().equals("+"))
-	    return d1+d2;
-	else return d1-d2;
-    };
-    public Double visitMult(implParser.MultContext ctx){
-	Double d1=visit(ctx.e1);
-	Double d2=visit(ctx.e2);
-	System.out.println("Mult "+d1+ctx.op.getText()+d2);
-	if (ctx.op.getText().equals("*"))
-	    return d1*d2;
-	else return d1/d2;
-    }
-    public Double visitVar(implParser.VarContext ctx){
-	System.err.println("Variables not yet supported.");
-	System.exit(-1);
-	return null;
-    };
-    public Double visitConst(implParser.ConstContext ctx){
-	return Double.valueOf(ctx.f.getText());
-    }
-    public Double visitParen(implParser.ParenContext ctx){
-	System.out.println("Parentheses");
-	return visit(ctx.e);}
+
+	@Override
+	public String visitMethods(implParser.MethodsContext ctx) {
+		return visit(ctx.hw);
+	}
 
 
+	public String visitHardware(implParser.HardwareContext ctx){
+	String hardware_name = ctx.v.getText();
+
+	System.out.println("Hardware:" + hardware_name);
+
+	return hardware_name;
+    }
+
+	@Override
+	public String visitInput(implParser.InputContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitOutput(implParser.OutputContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitLatches(implParser.LatchesContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitSimulate(implParser.SimulateContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitUpdates(implParser.UpdatesContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitList(implParser.ListContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitLatch(implParser.LatchContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitSimulation(implParser.SimulationContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitUpdate(implParser.UpdateContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitOR(implParser.ORContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitVar(implParser.VarContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitAND(implParser.ANDContext ctx) {
+		return null;
+	}
+
+	@Override
+	public String visitParen(implParser.ParenContext ctx) {
+		return null;
+	}
+
+	;
 }
 
