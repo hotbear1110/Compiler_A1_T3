@@ -1,12 +1,12 @@
 grammar impl;
 
-start   : m=methods | (SINGLELINE|MULTILINECOMMENT|WHITESPACE|NORMALTEXT)* EOF ;
+start   : (m=methods|SINGLELINE|MULTILINECOMMENT|WHITESPACE|NORMALTEXT)* EOF ;
 
 SINGLELINE : '//' ~[\n]* [\n]* -> skip;
 
 MULTILINECOMMENT : '/*' (~[*] | '*' ~[/])* '*/' [\n]* -> skip;
 
-WHITESPACE : [ \t\n]+ -> skip;
+WHITESPACE : [ \t\n\r]+ -> skip;
 
 methods:    hw=hardware
        |    in=input
@@ -28,7 +28,8 @@ latch: ' '* v1=NORMALTEXT ' -> ' v2=NORMALTEXT;
 simulation: ' '* v=NORMALTEXT '=' i=INT;
 update: ' '* v=NORMALTEXT ' '* '=' ' '* e=expression;
 
-expression: '!'? x=NORMALTEXT                       # Var
+expression:
+            not='!'? x=NORMALTEXT                   # Var
             | ' '* '('e=expression')' ' '*          # Paren
             | e1=expression op=AND e2=expression    # AND
             | e1=expression op=OR  e2=expression    # OR

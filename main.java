@@ -53,85 +53,129 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 
     public String visitStart(implParser.StartContext ctx){
 	System.out.println("Evaluating Start");
-	return visit(ctx.m);
+	System.out.println(ctx.methods().size());
+
+		for (ParseTree child : ctx.children) {
+			System.out.println("Child: " + child.getText());
+			visit(child);
+		}
+	return "ok";
     }
 
 	@Override
 	public String visitMethods(implParser.MethodsContext ctx) {
-		return visit(ctx.hw);
+		return visit(ctx.getChild(0));
 	}
 
 
 	public String visitHardware(implParser.HardwareContext ctx){
 	String hardware_name = ctx.v.getText();
 
-	System.out.println("Hardware:" + hardware_name);
+	System.out.println(hardware_name);
 
-	return hardware_name;
+	return null;
     }
 
 	@Override
 	public String visitInput(implParser.InputContext ctx) {
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
 		return null;
 	}
 
 	@Override
 	public String visitOutput(implParser.OutputContext ctx) {
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
 		return null;
 	}
 
 	@Override
 	public String visitLatches(implParser.LatchesContext ctx) {
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
 		return null;
 	}
 
 	@Override
 	public String visitSimulate(implParser.SimulateContext ctx) {
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
 		return null;
 	}
 
 	@Override
 	public String visitUpdates(implParser.UpdatesContext ctx) {
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+		System.out.print("\n");
 		return null;
 	}
 
 	@Override
 	public String visitList(implParser.ListContext ctx) {
+		for (ParseTree child : ctx.children) {
+			System.out.println(child.getText());
+		}
 		return null;
 	}
 
 	@Override
 	public String visitLatch(implParser.LatchContext ctx) {
+		System.out.println(ctx.v1.getText() + " -> " + ctx.v2.getText());
 		return null;
 	}
 
 	@Override
 	public String visitSimulation(implParser.SimulationContext ctx) {
+		System.out.println(ctx.v.getText() + "=" + ctx.i.getText());
 		return null;
 	}
 
 	@Override
 	public String visitUpdate(implParser.UpdateContext ctx) {
+		System.out.print(ctx.v.getText() + " = ");
+		visit(ctx.e);
+		System.out.print("\n");
 		return null;
 	}
 
 	@Override
 	public String visitOR(implParser.ORContext ctx) {
+		visit(ctx.e1);
+		System.out.print(ctx.op.getText());
+		visit(ctx.e2);
 		return null;
 	}
 
 	@Override
 	public String visitVar(implParser.VarContext ctx) {
+		if (ctx.not != null) {
+			System.out.print(ctx.not.getText() + ctx.x.getText());
+		} else {
+			System.out.print(ctx.x.getText());
+		}
 		return null;
 	}
 
 	@Override
 	public String visitAND(implParser.ANDContext ctx) {
+		visit(ctx.e1);
+		System.out.print(ctx.op.getText());
+		visit(ctx.e2);
 		return null;
 	}
 
 	@Override
 	public String visitParen(implParser.ParenContext ctx) {
+		System.out.print("(");
+		visit(ctx.e);
+		System.out.print(")");
 		return null;
 	}
 
