@@ -1,6 +1,9 @@
 // Generated from impl.g4 by ANTLR 4.13.0
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 /**
  * This interface defines a complete generic visitor for a parse tree produced
  * by {@link implParser}.
@@ -26,7 +29,7 @@ public interface implVisitor<T> extends ParseTreeVisitor<T> {
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitHardware(implParser.HardwareContext ctx);
+	T visitHardware(implParser.HardwareContext ctx) throws FileNotFoundException, UnsupportedEncodingException;
 	/**
 	 * Visit a parse tree produced by {@link implParser#input}.
 	 * @param ctx the parse tree

@@ -4,6 +4,9 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
+
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -341,7 +344,15 @@ public class implParser extends Parser {
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof implVisitor ) return ((implVisitor<? extends T>)visitor).visitHardware(this);
+			if ( visitor instanceof implVisitor ) {
+				try {
+					return ((implVisitor<? extends T>)visitor).visitHardware(this);
+				} catch (FileNotFoundException e) {
+					throw new RuntimeException(e);
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
+				}
+			}
 			else return visitor.visitChildren(this);
 		}
 	}

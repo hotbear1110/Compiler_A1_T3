@@ -2,7 +2,10 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CharStreams;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +42,10 @@ public class main {
 	Interpreter interpreter = new Interpreter();
 	String result=interpreter.visit(parseTree);
 	System.out.println("The result is: "+result);
-    }
+
+	html htmlFile = new html();
+	htmlFile.create();
+	}
 }
 
 // We write an interpreter that implements interface
@@ -68,12 +74,15 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 
-	public String visitHardware(implParser.HardwareContext ctx){
+	public String visitHardware(implParser.HardwareContext ctx) {
 	String hardware_name = ctx.v.getText();
 
 	System.out.println(hardware_name);
 
-	return null;
+		html htmlFile = new html();
+		htmlFile.write("<h1> " + hardware_name + " </h1>\n\n");
+
+		return null;
     }
 
 	@Override
@@ -134,6 +143,11 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	@Override
 	public String visitSimulation(implParser.SimulationContext ctx) {
 		System.out.println(ctx.v.getText() + "=" + ctx.i.getText());
+		html htmlFile = new html();
+		htmlFile.write(
+				"<h2> Simulation inputs </h2>\n" +
+							"<b> " + ctx.v.getText() + " </b>: " + ctx.i.getText() + "\n\n"
+		);
 		return null;
 	}
 
@@ -180,5 +194,4 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	;
-}
-
+};
