@@ -137,7 +137,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 		for (ParseTree child : ctx.children) {
 			System.out.println(child.getText());
 			html htmlFile = new html();
-			htmlFile.write(child.getText()+"<br>");
+			htmlFile.write("\\(\\mathrm{" + child.getText() + "}\\)" + "<br>");
 		}
 		return null;
 	}
@@ -146,7 +146,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	public String visitLatch(implParser.LatchContext ctx) {
 		System.out.println(ctx.v1.getText() + " -> " + ctx.v2.getText());
 		html htmlFile = new html();
-		htmlFile.write(ctx.v1.getText() + "&rarr;" + ctx.v2.getText() + "<br>");
+		htmlFile.write("\\(\\mathrm{" + ctx.v1.getText() + "}" + "&rarr;" + "\\mathrm{" + ctx.v2.getText() + "}\\)" + "<br>");
 		return null;
 	}
 
@@ -156,7 +156,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 		html htmlFile = new html();
 		htmlFile.write(
 				"<h2> Simulation inputs </h2>\n" +
-							"<b> " + ctx.v.getText() + " </b>: " + ctx.i.getText() + "\n\n"
+							"<b> " + "\\(\\mathrm{" + ctx.v.getText() + "}\\)" + " </b>: " + ctx.i.getText() + "\n\n"
 		);
 		return null;
 	}
