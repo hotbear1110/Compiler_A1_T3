@@ -1,13 +1,9 @@
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CharStreams;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class main {
     public static void main(String[] args) throws IOException{
@@ -24,8 +20,7 @@ public class main {
 
 	// open the input file
 	CharStream input = CharStreams.fromFileName(filename);
-	    //new ANTLRFileStream (filename); // depricated
-	
+
 	// create a lexer/scanner
 	implLexer lex = new implLexer(input);
 	
@@ -54,8 +49,6 @@ public class main {
 // simply a Double.
 
 class Interpreter extends AbstractParseTreeVisitor<String> implements implVisitor<String> {
-    // todo - Java will complain that "Interpreter" does not in fact
-    // implement "implVisitor" at the moment.
 
     public String visitStart(implParser.StartContext ctx){
 	System.out.println("Evaluating Start");
@@ -125,10 +118,11 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 
 	@Override
 	public String visitUpdates(implParser.UpdatesContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("<h2> Updates </h2>");
 		for (ParseTree child : ctx.children) {
 			visit(child);
 		}
-		System.out.print("\n");
 		return null;
 	}
 
@@ -156,33 +150,42 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 		html htmlFile = new html();
 		htmlFile.write(
 				"<h2> Simulation inputs </h2>\n" +
-							"<b> " + "\\(\\mathrm{" + ctx.v.getText() + "}\\)" + " </b>: " + ctx.i.getText() + "\n\n"
+							"<b> " + "\\(\\mathrm{" + ctx.v.getText() + "}\\)" + " </b>\\(\\mathrm{: " + ctx.i.getText() + "}\\)\n\n"
 		);
 		return null;
 	}
 
 	@Override
 	public String visitUpdate(implParser.UpdateContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("\\(\\mathrm{" + ctx.v.getText() + "&larr;");
 		System.out.print(ctx.v.getText() + " = ");
 		visit(ctx.e);
 		System.out.print("\n");
+		htmlFile.write("}\\)<br>");
 		return null;
 	}
 
 	@Override
 	public String visitOR(implParser.ORContext ctx) {
 		visit(ctx.e1);
+		html htmlFile = new html();
+		htmlFile.write("\\vee(");
 		System.out.print(ctx.op.getText());
 		visit(ctx.e2);
+		htmlFile.write(")");
 		return null;
 	}
 
 	@Override
 	public String visitVar(implParser.VarContext ctx) {
+		html htmlFile = new html();
 		if (ctx.not != null) {
 			System.out.print(ctx.not.getText() + ctx.x.getText());
+			htmlFile.write("\\neg(" + ctx.x.getText() + ")");
 		} else {
 			System.out.print(ctx.x.getText());
+			htmlFile.write(ctx.x.getText());
 		}
 		return null;
 	}
@@ -190,16 +193,22 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	@Override
 	public String visitAND(implParser.ANDContext ctx) {
 		visit(ctx.e1);
+		html htmlFile = new html();
+		htmlFile.write("\\wedge(");
 		System.out.print(ctx.op.getText());
 		visit(ctx.e2);
+		htmlFile.write(")");
 		return null;
 	}
 
 	@Override
 	public String visitParen(implParser.ParenContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("(");
 		System.out.print("(");
 		visit(ctx.e);
 		System.out.print(")");
+		htmlFile.write(")");
 		return null;
 	}
 
