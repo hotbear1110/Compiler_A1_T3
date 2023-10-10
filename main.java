@@ -88,6 +88,8 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	@Override
 	public String visitInput(implParser.InputContext ctx) {
 		for (ParseTree child : ctx.children) {
+			html htmlFile = new html();
+			htmlFile.write("<h2> Inputs </h2>\n");
 			visit(child);
 		}
 		return null;
@@ -96,6 +98,8 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	@Override
 	public String visitOutput(implParser.OutputContext ctx) {
 		for (ParseTree child : ctx.children) {
+			html htmlFile = new html();
+			htmlFile.write("<h2> Outputs </h2>\n");
 			visit(child);
 		}
 		return null;
@@ -130,6 +134,8 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	public String visitList(implParser.ListContext ctx) {
 		for (ParseTree child : ctx.children) {
 			System.out.println(child.getText());
+			html htmlFile = new html();
+			htmlFile.write(child.getText()+"\n");
 		}
 		return null;
 	}
