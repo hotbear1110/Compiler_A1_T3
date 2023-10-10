@@ -107,6 +107,8 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 
 	@Override
 	public String visitLatches(implParser.LatchesContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("<h2> Latches </h2>\n");
 		for (ParseTree child : ctx.children) {
 			visit(child);
 		}
@@ -143,6 +145,8 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	@Override
 	public String visitLatch(implParser.LatchContext ctx) {
 		System.out.println(ctx.v1.getText() + " -> " + ctx.v2.getText());
+		html htmlFile = new html();
+		htmlFile.write(ctx.v1.getText() + "&rarr;" + ctx.v2.getText() + "<br>");
 		return null;
 	}
 
