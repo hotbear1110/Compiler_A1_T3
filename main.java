@@ -1,10 +1,9 @@
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CharStreams;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class main {
     public static void main(String[] args) throws IOException{
@@ -21,8 +20,7 @@ public class main {
 
 	// open the input file
 	CharStream input = CharStreams.fromFileName(filename);
-	    //new ANTLRFileStream (filename); // depricated
-	
+
 	// create a lexer/scanner
 	implLexer lex = new implLexer(input);
 	
@@ -37,9 +35,11 @@ public class main {
 
 	// Construct an interpreter and run it on the parse tree
 	Interpreter interpreter = new Interpreter();
-	Double result=interpreter.visit(parseTree);
-	System.out.println("The result is: "+result);
-    }
+	String result=interpreter.visit(parseTree);
+
+	html htmlFile = new html();
+	htmlFile.create();
+	}
 }
 
 // We write an interpreter that implements interface
@@ -47,42 +47,153 @@ public class main {
 // This is parameterized over a return type "<T>" which is in our case
 // simply a Double.
 
-class Interpreter extends AbstractParseTreeVisitor<Double> implements implVisitor<Double> {
-    // todo - Java will complain that "Interpreter" does not in fact
-    // implement "implVisitor" at the moment.
+class Interpreter extends AbstractParseTreeVisitor<String> implements implVisitor<String> {
 
-    public Double visitStart(implParser.StartContext ctx){
-	System.out.println("Evaluating Start");
-	return visit(ctx.e);
+    public String visitStart(implParser.StartContext ctx){
+
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+	return "ok";
     }
-    public Double visitAdd(implParser.AddContext ctx){
-	Double d1=visit(ctx.e1);
-	Double d2=visit(ctx.e2);
-	System.out.println("Addition "+d1+ctx.op.getText()+d2);
-	if (ctx.op.getText().equals("+"))
-	    return d1+d2;
-	else return d1-d2;
-    };
-    public Double visitMult(implParser.MultContext ctx){
-	Double d1=visit(ctx.e1);
-	Double d2=visit(ctx.e2);
-	System.out.println("Mult "+d1+ctx.op.getText()+d2);
-	if (ctx.op.getText().equals("*"))
-	    return d1*d2;
-	else return d1/d2;
+
+	@Override
+	public String visitMethods(implParser.MethodsContext ctx) {
+		return visit(ctx.getChild(0));
+	}
+
+
+	public String visitHardware(implParser.HardwareContext ctx) {
+	String hardware_name = ctx.v.getText();
+
+		html htmlFile = new html();
+		htmlFile.write("<h1> " + hardware_name + " </h1>\n\n");
+
+		return null;
     }
-    public Double visitVar(implParser.VarContext ctx){
-	System.err.println("Variables not yet supported.");
-	System.exit(-1);
-	return null;
-    };
-    public Double visitConst(implParser.ConstContext ctx){
-	return Double.valueOf(ctx.f.getText());
-    }
-    public Double visitParen(implParser.ParenContext ctx){
-	System.out.println("Parentheses");
-	return visit(ctx.e);}
 
+	@Override
+	public String visitInput(implParser.InputContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("<h2> Inputs </h2>\n");
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+		return null;
+	}
 
-}
+	@Override
+	public String visitOutput(implParser.OutputContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("<h2> Outputs </h2>\n");
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+		return null;
+	}
 
+	@Override
+	public String visitLatches(implParser.LatchesContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("<h2> Latches </h2>\n");
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+		return null;
+	}
+
+	@Override
+	public String visitSimulate(implParser.SimulateContext ctx) {
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+		return null;
+	}
+
+	@Override
+	public String visitUpdates(implParser.UpdatesContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("<h2> Updates </h2>");
+		for (ParseTree child : ctx.children) {
+			visit(child);
+		}
+		return null;
+	}
+
+	@Override
+	public String visitList(implParser.ListContext ctx) {
+		for (ParseTree child : ctx.children) {
+			html htmlFile = new html();
+			htmlFile.write("\\(\\mathrm{" + child.getText() + "}\\)" + "<br>");
+		}
+		return null;
+	}
+
+	@Override
+	public String visitLatch(implParser.LatchContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("\\(\\mathrm{" + ctx.v1.getText() + "}" + "&rarr;" + "\\mathrm{" + ctx.v2.getText() + "}\\)" + "<br>");
+		return null;
+	}
+
+	@Override
+	public String visitSimulation(implParser.SimulationContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write(
+				"<h2> Simulation inputs </h2>\n" +
+							"<b> " + "\\(\\mathrm{" + ctx.v.getText() + "}\\)" + " </b>\\(\\mathrm{: " + ctx.i.getText() + "}\\)\n\n"
+		);
+		return null;
+	}
+
+	@Override
+	public String visitUpdate(implParser.UpdateContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("\\(\\mathrm{" + ctx.v.getText() + "&larr;");
+		visit(ctx.e);
+		htmlFile.write("}\\)<br>");
+		return null;
+	}
+
+	@Override
+	public String visitOR(implParser.ORContext ctx) {
+		visit(ctx.e1);
+		html htmlFile = new html();
+		htmlFile.write("\\vee(");
+		visit(ctx.e2);
+		htmlFile.write(")");
+		return null;
+	}
+
+	@Override
+	public String visitVar(implParser.VarContext ctx) {
+		html htmlFile = new html();
+		if (ctx.not != null) {
+			htmlFile.write("\\neg(" + ctx.x.getText() + ")");
+		} else {
+			htmlFile.write(ctx.x.getText());
+		}
+		return null;
+	}
+
+	@Override
+	public String visitAND(implParser.ANDContext ctx) {
+		visit(ctx.e1);
+		html htmlFile = new html();
+		htmlFile.write("\\wedge(");
+		visit(ctx.e2);
+		htmlFile.write(")");
+		return null;
+	}
+
+	@Override
+	public String visitParen(implParser.ParenContext ctx) {
+		html htmlFile = new html();
+		htmlFile.write("(");
+		visit(ctx.e);
+		htmlFile.write(")");
+		return null;
+	}
+
+	;
+};

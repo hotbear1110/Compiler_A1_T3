@@ -1,22 +1,42 @@
 grammar impl;
 
-// taking only part of last week's impl:
+start   : (m=methods|SINGLELINE|MULTILINECOMMENT|WHITESPACE|NORMALTEXT)* EOF ;
 
-start   : e=exp EOF  ;
+SINGLELINE : '//' ~[\n]* [\n]* -> skip;
 
-exp : x=IDENTIFIER	          # Var
-    | f=FLOAT			  # Const
-    | e1=exp op=('*'|'/') e2=exp  # Mult
-    | e1=exp op=('+'|'-') e2=exp  # Add
-    | '(' e=exp ')'   	  	  # Paren
-    ;
-    
-IDENTIFIER : [a-zA-Z] [a-zA-Z_0-9]* ;  // x17y
+MULTILINECOMMENT : '/*' (~[*] | '*' ~[/])* '*/' [\n]* -> skip;
 
-// Just using FLOAT this time, including integer values (the '.' is optional)
-FLOAT      : [0-9]+ ('.' [0-9]+)? ;
+WHITESPACE : [ \t\n\r]+ -> skip;
 
-WHITESPACE : [ \t\n]+ -> skip;
+methods:    hw=hardware
+       |    in=input
+       |    out=output
+       |    lat=latches
+       |    sim=simulate
+       |    upd=updates;
 
-COMMENT : '//' ~[\n]* -> skip;
-LONGCOMMENT : '/*' (~[*] | '*'~[/])* '*/' -> skip;
+
+hardware: '.hardware ' v=NORMALTEXT;
+input:  '.inputs ' li=list;
+output:  '.outputs ' li=list;
+latches: '.latches' la=latch+;
+simulate: '.simulate' s=simulation+;
+updates: '.update' u=update+;
+
+list: ((v=NORMALTEXT ' ') | v=NORMALTEXT)+;
+latch: ' '* v1=NORMALTEXT ' -> ' v2=NORMALTEXT;
+simulation: ' '* v=NORMALTEXT '=' i=INT;
+update: ' '* v=NORMALTEXT ' '* '=' ' '* e=expression;
+
+expression:
+            not='!'? x=NORMALTEXT                   # Var
+            | ' '* '('e=expression')' ' '*          # Paren
+            | e1=expression op=AND e2=expression    # AND
+            | e1=expression op=OR  e2=expression    # OR
+            ;
+
+AND: ' '* '&&' ' '*;
+OR: ' '* '||' ' '*;
+
+INT: [0-9]+;
+NORMALTEXT: [a-zA-Z_0-9]+;
