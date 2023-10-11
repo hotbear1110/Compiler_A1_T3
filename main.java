@@ -35,7 +35,7 @@ public class main {
 
 	// Construct an interpreter and run it on the parse tree
 	Interpreter interpreter = new Interpreter();
-	String result=interpreter.visit(parseTree);
+	interpreter.visit(parseTree);
 
 	html htmlFile = new html();
 	htmlFile.create();
@@ -47,23 +47,23 @@ public class main {
 // This is parameterized over a return type "<T>" which is in our case
 // simply a Double.
 
-class Interpreter extends AbstractParseTreeVisitor<String> implements implVisitor<String> {
+class Interpreter extends AbstractParseTreeVisitor<Void> implements implVisitor<Void> {
 
-    public String visitStart(implParser.StartContext ctx){
+    public Void visitStart(implParser.StartContext ctx){
 
 		for (ParseTree child : ctx.children) {
 			visit(child);
 		}
-	return "ok";
+	return null;
     }
 
 	@Override
-	public String visitMethods(implParser.MethodsContext ctx) {
+	public Void visitMethods(implParser.MethodsContext ctx) {
 		return visit(ctx.getChild(0));
 	}
 
 
-	public String visitHardware(implParser.HardwareContext ctx) {
+	public Void visitHardware(implParser.HardwareContext ctx) {
 	String hardware_name = ctx.v.getText();
 
 		html htmlFile = new html();
@@ -73,7 +73,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
     }
 
 	@Override
-	public String visitInput(implParser.InputContext ctx) {
+	public Void visitInput(implParser.InputContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("<h2> Inputs </h2>\n");
 		for (ParseTree child : ctx.children) {
@@ -83,7 +83,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitOutput(implParser.OutputContext ctx) {
+	public Void visitOutput(implParser.OutputContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("<h2> Outputs </h2>\n");
 		for (ParseTree child : ctx.children) {
@@ -93,7 +93,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitLatches(implParser.LatchesContext ctx) {
+	public Void visitLatches(implParser.LatchesContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("<h2> Latches </h2>\n");
 		for (ParseTree child : ctx.children) {
@@ -103,7 +103,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitSimulate(implParser.SimulateContext ctx) {
+	public Void visitSimulate(implParser.SimulateContext ctx) {
 		for (ParseTree child : ctx.children) {
 			visit(child);
 		}
@@ -111,7 +111,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitUpdates(implParser.UpdatesContext ctx) {
+	public Void visitUpdates(implParser.UpdatesContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("<h2> Updates </h2>");
 		for (ParseTree child : ctx.children) {
@@ -121,7 +121,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitList(implParser.ListContext ctx) {
+	public Void visitList(implParser.ListContext ctx) {
 		for (ParseTree child : ctx.children) {
 			html htmlFile = new html();
 			htmlFile.write("\\(\\mathrm{" + child.getText() + "}\\)" + "<br>");
@@ -130,14 +130,14 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitLatch(implParser.LatchContext ctx) {
+	public Void visitLatch(implParser.LatchContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("\\(\\mathrm{" + ctx.v1.getText() + "}" + "&rarr;" + "\\mathrm{" + ctx.v2.getText() + "}\\)" + "<br>");
 		return null;
 	}
 
 	@Override
-	public String visitSimulation(implParser.SimulationContext ctx) {
+	public Void visitSimulation(implParser.SimulationContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write(
 				"<h2> Simulation inputs </h2>\n" +
@@ -147,7 +147,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitUpdate(implParser.UpdateContext ctx) {
+	public Void visitUpdate(implParser.UpdateContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("\\(\\mathrm{" + ctx.v.getText() + "&larr;");
 		visit(ctx.e);
@@ -156,7 +156,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitOR(implParser.ORContext ctx) {
+	public Void visitOR(implParser.ORContext ctx) {
 		visit(ctx.e1);
 		html htmlFile = new html();
 		htmlFile.write("\\vee(");
@@ -166,7 +166,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitVar(implParser.VarContext ctx) {
+	public Void visitVar(implParser.VarContext ctx) {
 		html htmlFile = new html();
 		if (ctx.not != null) {
 			htmlFile.write("\\neg(" + ctx.x.getText() + ")");
@@ -177,7 +177,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitAND(implParser.ANDContext ctx) {
+	public Void visitAND(implParser.ANDContext ctx) {
 		visit(ctx.e1);
 		html htmlFile = new html();
 		htmlFile.write("\\wedge(");
@@ -187,7 +187,7 @@ class Interpreter extends AbstractParseTreeVisitor<String> implements implVisito
 	}
 
 	@Override
-	public String visitParen(implParser.ParenContext ctx) {
+	public Void visitParen(implParser.ParenContext ctx) {
 		html htmlFile = new html();
 		htmlFile.write("(");
 		visit(ctx.e);
